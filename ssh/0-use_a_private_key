@@ -1,4 +1,5 @@
-Host * 
- IdentityFile ~/.ssh/school   
- PasswordAuthentication no
+#!/usr/bin/env bash
+#
+# Connects to a server via SSH using a private key.
 
+ssh -i ~/.ssh/school -o StrictHostKeyChecking=no ubuntu@"$1"

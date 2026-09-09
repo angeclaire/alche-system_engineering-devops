@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Installs and configures nginx to serve a page containing "Holberton School"
+
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a
+
 apt-get -y update
 apt-get -y install nginx
+
 echo "Holberton School" > /var/www/html/index.nginx-debian.html
-service nginx start
+
+service nginx start || service nginx restart

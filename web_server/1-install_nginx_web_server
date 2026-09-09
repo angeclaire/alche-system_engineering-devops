@@ -7,6 +7,7 @@ export NEEDRESTART_MODE=a
 apt-get -y update
 apt-get -y install nginx
 
-echo "Holberton School" > /var/www/html/index.nginx-debian.html
+mkdir -p /usr/share/nginx/html
+echo "Holberton School" > /usr/share/nginx/html/index.html
 
 service nginx start || service nginx restart

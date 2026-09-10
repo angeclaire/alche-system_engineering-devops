@@ -2,5 +2,5 @@
 # Configures my Nginx server so that /redirect_me is redirecting to another page
 sudo apt update -y
 sudo apt install nginx -y
-sudo sed -i '/server_name _;/a\location /redirect_me {\nreturn 301 https://github.com/Umutoni2;\n}' /etc/nginx/sites-available/default
+sudo sed -i '/server_name _;/a\location /redirect_me {\nreturn 301 https://github.com/angeclaire;\n}' /etc/nginx/sites-available/default
 sudo service nginx restart

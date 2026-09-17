@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Configures Nginx to run as the "nginx" user and listen on port 8080
+
+# Create the nginx user if it doesn't already exist
+id -u nginx &>/dev/null || useradd nginx
+
+# Change the user directive in the main config
+sed -i 's/^user www-data;/user nginx;/' /etc/nginx/nginx.conf
+
+# Change the listen directives from port 80 to port 8080
+sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:80 default_server ipv6only=on;/listen [::]:8080 default_server ipv6only=on;/' /etc/nginx/sites-available/default
+
+# Restart nginx to apply changes (bypassing service manager restrictions if present)
+/etc/init.d/nginx stop
+/etc/init.d/nginx start

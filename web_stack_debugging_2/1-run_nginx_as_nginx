@@ -8,13 +8,16 @@ id -u nginx &>/dev/null || useradd -r -s /bin/false nginx
 sed -i 's/^user .*;/user nginx;/' /etc/nginx/nginx.conf
 
 # Force the listen directives to port 8080
-sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-enabled/default
-sed -i 's/listen \[::\]:80 default_server ipv6only=on;/listen [::]:8080 default_server ipv6only=on;/' /etc/nginx/sites-enabled/default
+sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:80 default_server ipv6only=on;/listen [::]:8080 default_server ipv6only=on;/' /etc/nginx/sites-available/default
 
 # Make sure nginx (the user) can write logs
 chown -R nginx:nginx /var/log/nginx /var/lib/nginx 2>/dev/null
 
-# Restart nginx the normal way (root starts it, master drops workers to nginx user)
-pkill nginx 2>/dev/null
-sleep 1
+# Kill any existing nginx process and wait until it's fully gone
+pkill -9 nginx 2>/dev/null
+while pgrep nginx > /dev/null; do sleep 0.2; done
+
+# Start nginx fresh
 /etc/init.d/nginx start
+sleep 1

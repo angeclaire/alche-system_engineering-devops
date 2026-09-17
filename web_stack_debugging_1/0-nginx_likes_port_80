@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-# Starts Nginx directly so it listens on port 80
+# Starts Nginx directly, bypassing service manager restrictions, and waits
+# briefly to ensure it is fully bound to port 80 before the script exits
 /etc/init.d/nginx start
+sleep 1

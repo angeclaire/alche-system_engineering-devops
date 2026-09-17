@@ -4,13 +4,13 @@
 # Create the nginx user if it doesn't already exist
 id -u nginx &>/dev/null || useradd nginx
 
-# Change the user directive in the main config
-sed -i 's/^user www-data;/user nginx;/' /etc/nginx/nginx.conf
+# Force the top-level user directive to nginx, regardless of its current value
+sed -i 's/^user .*;/user nginx;/' /etc/nginx/nginx.conf
 
 # Change the listen directives from port 80 to port 8080
 sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
 sed -i 's/listen \[::\]:80 default_server ipv6only=on;/listen [::]:8080 default_server ipv6only=on;/' /etc/nginx/sites-available/default
 
-# Restart nginx to apply changes (bypassing service manager restrictions if present)
-/etc/init.d/nginx stop
+# Fully restart nginx so it re-forks workers under the new user
+pkill -9 nginx 2>/dev/null
 /etc/init.d/nginx start

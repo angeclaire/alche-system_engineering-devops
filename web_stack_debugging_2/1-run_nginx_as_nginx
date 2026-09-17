@@ -1,23 +1,19 @@
 #!/usr/bin/env bash
-# Configure Nginx to run as the nginx user and listen on port 8080
+# Configures Nginx to run as the nginx user, listening on all IPs on port 8080
 
-# Create the nginx user if it doesn't exist
-id -u nginx &>/dev/null || useradd -r -s /bin/false nginx
+# Stop anything already bound to the old config
+pkill apache2 2>/dev/null
+pkill nginx 2>/dev/null
 
-# Force the user directive to nginx, no matter its current value
-sed -i 's/^user .*;/user nginx;/' /etc/nginx/nginx.conf
+# Run the worker/master as nginx, not root
+sed -i 's/^#\?user .*/user nginx;/' /etc/nginx/nginx.conf
 
-# Force the listen directives to port 8080
-sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80 default_server ipv6only=on;/listen [::]:8080 default_server ipv6only=on;/' /etc/nginx/sites-available/default
+# Listen on 8080 instead of 80 (both IPv4 and IPv6 default_server lines)
+sed -i 's/listen 80 default_server/listen 8080 default_server/' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:80 default_server/listen [::]:8080 default_server/' /etc/nginx/sites-available/default
 
-# Make sure nginx (the user) can write logs
-chown -R nginx:nginx /var/log/nginx /var/lib/nginx 2>/dev/null
+# The nginx user needs to own the runtime dirs it writes to
+chown -R nginx:nginx /var/lib/nginx /var/log/nginx /var/run /run
 
-# Kill any existing nginx process and wait until it's fully gone
-pkill -9 nginx 2>/dev/null
-while pgrep nginx > /dev/null; do sleep 0.2; done
-
-# Start nginx fresh
-/etc/init.d/nginx start
-sleep 1
+# Start the master process itself as nginx
+sudo -u nginx /usr/sbin/nginx

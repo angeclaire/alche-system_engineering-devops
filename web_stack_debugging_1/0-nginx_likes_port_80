@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Ensures Nginx is installed and running, listening on port 80
-which nginx > /dev/null 2>&1 || apt-get install -y nginx > /dev/null 2>&1
-pkill -9 nginx 2>/dev/null
-/etc/init.d/nginx start
-sleep 2
+# Configures Nginx to listen on port 80
+
+cp /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+kill "$(pgrep -o nginx)"
+nginx

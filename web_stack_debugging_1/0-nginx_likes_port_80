@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Starts Nginx directly, bypassing service manager restrictions, and waits
-# briefly to ensure it is fully bound to port 80 before the script exits
+# Ensures Nginx is installed, killed of any stale processes, and
+# started directly so it binds to port 80 on all IPv4 interfaces
+pkill -9 nginx 2>/dev/null
 /etc/init.d/nginx start
-sleep 1
+sleep 2

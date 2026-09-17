@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
-# Configures Nginx to run as the "nginx" user and listen on port 8080
+# Configure Nginx to run as nginx user and listen on port 8080
 
-# Create the nginx user if it doesn't already exist
-id -u nginx &>/dev/null || useradd nginx
+if ! id nginx >/dev/null 2>&1; then
+    useradd -r -s /bin/false nginx
+fi
 
-# Force the top-level user directive to nginx, regardless of its current value
-sed -i 's/^user .*;/user nginx;/' /etc/nginx/nginx.conf
+sed -i 's/^user www-data;/user nginx;/' /etc/nginx/nginx.conf
+sed -i 's|^pid /run/nginx.pid;|pid /tmp/nginx.pid;|' /etc/nginx/nginx.conf
+sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-enabled/default
+sed -i 's/listen \[::\]:80 default_server ipv6only=on;/listen [::]:8080 default_server ipv6only=on;/' /etc/nginx/sites-enabled/default
 
-# Change the listen directives from port 80 to port 8080
-sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80 default_server ipv6only=on;/listen [::]:8080 default_server ipv6only=on;/' /etc/nginx/sites-available/default
+chown -R nginx:nginx /var/log/nginx
 
-# Fully restart nginx so it re-forks workers under the new user
-pkill -9 nginx 2>/dev/null
-/etc/init.d/nginx start
+pkill nginx
+rm -f /tmp/nginx.pid
+
+nginx -t
+rm -f /tmp/nginx.pid
+
+su -s /bin/bash nginx -c 'nginx'
